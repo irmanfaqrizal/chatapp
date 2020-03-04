@@ -12,11 +12,13 @@ public class chatClientMain {
             System.out.println("Usage: java chatClientMain <client name>");
             return;
         }
-        
-        Registry registry = LocateRegistry.getRegistry("localhost"); 
-		chatServer_itf server_itf = (chatServer_itf) registry.lookup("Server");
-        new Thread(new chatClient_itfImpl(args[0], server_itf)).start();
-
-        System.out.println("Logged in as : " + args[0]);
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost"); 
+            chatServer_itf server_itf = (chatServer_itf) registry.lookup("Server");
+            new Thread(new chatClient_itfImpl(args[0], server_itf)).start();
+        } catch (Exception e) {
+            System.out.println("Connection Failed...!!!");
+            System.exit(0);
+        }
 	}
 }
