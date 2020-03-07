@@ -14,6 +14,7 @@ public class chatServerMain {
 			System.out.println("Server Ready");
 		} catch (Exception e) {
 			System.out.println("Failed to run the server...!!!");
+			System.exit(0);
 		}
 	}
 }
