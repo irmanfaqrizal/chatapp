@@ -16,6 +16,7 @@ public class handlerServerShutdown implements Runnable {
         try {
             FileWriter fw = new FileWriter("history.txt", true);
             BufferedWriter bw = new BufferedWriter(fw);
+            new PrintWriter("history.txt").close(); // empty the content 1st
             PrintWriter out = new PrintWriter(bw);
             for (String message : this.tmpMessages) {
                 out.println(message);

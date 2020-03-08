@@ -27,6 +27,12 @@ public class chatServer_itfImpl extends UnicastRemoteObject implements chatServe
 		} catch (Exception e) {}
 	}
 
+	private void restoreToClient(chatClient_itf client) throws RemoteException {
+		for(String value : chatHistory){
+			client.getMessage(value);
+		}
+	}
+
 	protected chatServer_itfImpl() throws RemoteException, FileNotFoundException, UnsupportedEncodingException {
         clientmaps = new HashMap<>();
 		clientNames = new ArrayList<String>();
@@ -40,13 +46,26 @@ public class chatServer_itfImpl extends UnicastRemoteObject implements chatServe
         if(!clientNames.contains(name)) {
             this.clientmaps.put(name, client);
 			this.clientNames.add(name);
+			restoreToClient(client);
+			broadcast(name + " has joined the chat room...!!!");
+			client.getMessage("Logged in as : " + name);
 			System.out.println(name + " joined");
             return true;
 		}
 		else {
+			client.getMessage("Clientname already exist, please input another name!");
             return false;
         }
-    }
+	}
+	
+	@Override
+	public boolean checkClientActive(String name) throws RemoteException { 
+		if (clientmaps.get(name)!=null){
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 	@Override
 	public void exitClientLogOut(String name) throws RemoteException {
