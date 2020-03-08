@@ -32,7 +32,7 @@ public class chatClientMain {
                 c_stub.sendMessage(message);
             }
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Failed to Connect : " + e);
             System.exit(0);
         }
     }

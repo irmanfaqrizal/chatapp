@@ -20,18 +20,10 @@ public class chatClient_itfImpl implements chatClient_itf {
         Runtime.getRuntime().addShutdownHook(new Thread(handlerLogOut));
     }
 
-    public void restoreChat() throws RemoteException {
-        for(String message : this.server_itf.restoreChatHistory()){
-            System.out.println(message);
-        }
-    }
-
 	public chatClient_itfImpl(String name, chatServer_itf server_interface) throws RemoteException {
         this.clientName = name;
         this.server_itf = server_interface;
 	}
-
-
 
 	@Override
 	public void getMessage(String message) throws RemoteException {
@@ -42,7 +34,11 @@ public class chatClient_itfImpl implements chatClient_itf {
 	public void sendMessage(String message) throws RemoteException {
         try {
             boolean checkActive = this.server_itf.checkClientActive(this.clientName);
-            if(message.equals("Exit")) {
+
+            String arr[] = message.split(" ", 2);
+            if (arr[0].equals("PM")){
+                this.server_itf.sendPM(this.clientName, arr[1]);
+            } else if(message.equals("Exit")) {
                 server_itf.exitClient(this.clientName);
             } else if (checkActive==false && message.equals("Join")){
                 server_itf.rejoinClient(this.clientName, this);

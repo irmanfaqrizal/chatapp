@@ -3,23 +3,30 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Stream;
 
-public class chatServer_itfImpl extends UnicastRemoteObject implements chatServer_itf {
+public class chatServer_itfImpl implements chatServer_itf {
 
-	private static final long serialVersionUID = 1L;
 	private ArrayList<String> clientNames;
 	HashMap<String, chatClient_itf> clientmaps;
 	private ArrayList<String> chatHistory;
+	TimerTask handlerScheduleHistory;
+	Timer timerHandlerScheduleHistory;
 
 	private void initServerShutdownHandler() {
 		handlerServerShutdown handlerServer = new handlerServerShutdown(this.chatHistory);
 		Runtime.getRuntime().addShutdownHook(new Thread(handlerServer));
 	}
+
+	public void startHistorySaver() {
+        handlerScheduleHistory = new handlerScheduleHistory(this.chatHistory);
+        timerHandlerScheduleHistory = new Timer(true);
+        timerHandlerScheduleHistory.scheduleAtFixedRate(handlerScheduleHistory, 0, 20000);
+    }
 
 	private void restoreFromFile() {
 		try (Stream<String> stream = Files.lines(Paths.get("history.txt"))) {
@@ -39,6 +46,7 @@ public class chatServer_itfImpl extends UnicastRemoteObject implements chatServe
 		chatHistory = new ArrayList<String>();
 		initServerShutdownHandler();
 		restoreFromFile();
+		startHistorySaver();
 	}
 
 	@Override
@@ -103,7 +111,13 @@ public class chatServer_itfImpl extends UnicastRemoteObject implements chatServe
 	}
 
 	@Override
-	public List <String> restoreChatHistory() throws RemoteException {
-		return chatHistory;
+	public void sendPM(String from, String message) throws RemoteException {
+		String arr[] = message.split(" ", 2);
+		if(this.clientmaps.get(arr[0])!=null){
+			this.clientmaps.get(arr[0]).getMessage("PM from "+from+" : "+arr[1]);
+		}
+		else{
+			this.clientmaps.get(from).getMessage("Client not found...!!!");
+		}
 	}
 }
