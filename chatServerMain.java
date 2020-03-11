@@ -10,7 +10,11 @@ public class chatServerMain {
 	public static void main(String[] args)
 			throws RemoteException, MalformedURLException, FileNotFoundException, UnsupportedEncodingException {
 		try {
-			Registry registry= LocateRegistry.getRegistry();
+			int port = 8080;
+			if(args.length > 0 && args[0].matches("-?\\d+") && Integer.parseInt(args[0]) > 1024) {
+				port = Integer.parseInt(args[0]);
+			}
+			Registry registry= LocateRegistry.createRegistry(port);
 			chatServer_itfImpl cs = new chatServer_itfImpl();
 			chatServer_itf cs_stub = (chatServer_itf) UnicastRemoteObject.exportObject(cs, 0);
 			registry.rebind("Server", cs_stub);
